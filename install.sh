@@ -34,7 +34,7 @@ fi
 
 ## Downloading MYSQL Repositories and MySQL Server
 yum install https://kojipkgs.fedoraproject.org/packages/python-html2text/2016.9.19/1.el7/noarch/python2-html2text-2016.9.19-1.el7.noarch.rpm -y &>/dev/null
-MYSQLRPM=$(curl -s http://repo.mysql.com/ | html2text | grep el7 | tail -1 | sed -e 's/(/ /g' -e 's/)/ /g' | xargs -n1 | grep ^mysql)
+MYSQLRPM=$(curl -s http://repo.mysql.com/ | html2text | grep el7 | grep mysql57| tail -1 | sed -e 's/(/ /g' -e 's/)/ /g' | xargs -n1 | grep ^mysql)
 MYSQLURL="http://repo.mysql.com/$MYSQLRPM"
 
 if [ ! -f /etc/yum.repos.d/mysql-community.repo ]; then 
@@ -88,9 +88,10 @@ fi
 
 
 ## Downloading SonarQube 
-VER=$(curl -s https://sonarsource.bintray.com/Distribution/sonarqube/  | tail -n 10 | awk -F '[<,>]' '{print $5}' | grep zip$ |tail -1)
-URL="https://sonarsource.bintray.com/Distribution/sonarqube/$VER"
-TFILE="/opt/$VER"
+#VER=$(curl -s https://sonarsource.bintray.com/Distribution/sonarqube/  | tail -n 10 | awk -F '[<,>]' '{print $5}' | grep zip$ |tail -1)
+#URL="https://sonarsource.bintray.com/Distribution/sonarqube/$VER"
+URL=$(curl https://www.sonarqube.org/downloads/ | grep zip | grep dl_page | grep btn-primary | tail -1 | awk -F \" '{print $2}')
+TFILE="/opt/$(echo $URL |awk -F / '{print $NF}')"
 TDIR=$(echo $TFILE|sed -e 's/.zip//')
 rm -rf /opt/sonarqube
 wget $URL -O $TFILE &>/dev/null
@@ -120,4 +121,3 @@ else
 	error "SonarQube Startup Failed"
 	exit 1
 fi
-
